@@ -13,3 +13,33 @@
  *= require_tree .
  *= require_self
  */
+body {
+  background: url(background.png) no-repeat center center fixed;
+  background-size: cover;
+  height: 100%;
+  overflow: hidden;
+}
+
+.opaque-window{
+  padding: 3rem;
+  border-radius: 1rem;
+  background-color: rgba(255,255,255,0.75)
+}
+
+.main-panel-dash {
+  padding: 3rem;
+  border-radius: 1rem;
+  background-color: rgba(245,245,245,.9)
+}
+
+.welcome-div {
+  padding: 3rem;
+  height: 100%;
+  display: grid;
+  align-items: center;
+  justify-content: center;
+}
+
+.sign-in-buttonset{
+  margin: auto
+}
