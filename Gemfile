@@ -52,3 +52,12 @@ end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+
+# Use devise for all authentication
+=begin
+  NOTE: This is the easy way out. 
+  I have previously implemented authentication using JWT, but
+  using devise saves me a few hours since it 
+  practically works out of the box and won't require a ton of testing
+=end
+gem 'devise'

@@ -5,3 +5,12 @@
 #
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
+
+# generate 2 fake users
+User.create(email: "user-1@example.com", password: "password", password_confirmation: "password")
+User.create(email: "tester@example.com", password: "password", password_confirmation: "password")
+User.all.each do |user|
+    10.times do |idx|
+        user.notes.create(title: "Note##{idx+1} for #{user.email}", body: idx%2==0 ? "There is a very short body here. Fun sized!" : ""  )
+    end
+end
