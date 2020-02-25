@@ -17,7 +17,7 @@ body {
   background: url(background.png) no-repeat center center fixed;
   background-size: cover;
   height: 100%;
-  overflow: hidden;
+  /*overflow: hidden;*/
 }
 
 .opaque-window{
@@ -42,4 +42,8 @@ body {
 
 .sign-in-buttonset{
   margin: auto
+}
+
+.note-actions {
+  white-space: nowrap;
 }
