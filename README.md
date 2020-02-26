@@ -13,5 +13,10 @@ in terminal, from project root:
 ### Comments on decisions made
 * Stated requirements in the challenge are generally covered. I decided not to pursue email functionality.
 * Used Devise gem for authentication. Devise pretty much works out of the box, so this saved me at least a few hours by not having to implement and test my own JWT mechanisms.
+* Used Bootstrap to simplify the process of making the interface pretty
+* Architecture of the app is a sort of a hybrid of a SPA and standard Rails App
+  - Dashboard for notes harnesses a Rails backend API serving notes data in JSON form
+  - Devise views and home page are routed by Rails
+  - This was done because of the flexibility ReactJS + Bootstrap offers for the dashboard interface. I find it easier to make a non-static view with this technique
 * Used Faker gem for the creation of fake data. This was way more fun than using Lorem Ipsum
 * Used FactoryBot for tests (this might have been unneccesary)
