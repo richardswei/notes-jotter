@@ -10,8 +10,9 @@
 require 'faker'
 
 User.create(email: "tester@example.com", password: "password", password_confirmation: "password")
+User.create(email: "another_tester@example.com", password: "password", password_confirmation: "password")
 
-4.times do |idx|
+3.times do |idx|
   User.create(email: Faker::TvShows::SiliconValley.email, password: "password", password_confirmation: "password")
 end
 

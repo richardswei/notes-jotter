@@ -20,8 +20,9 @@ class Api::V1::NotesController < ApplicationController
   end
   def create
     @note = current_user.notes.build(note_params)
-    @note.title = @note.title.nil? ? "" : @note.title
     @note.body = @note.body.nil? ? "" : @note.body
+    # title defaults to first 30 chars
+    @note.title = @note.title.length==0 ? @note.body[0..29] : @note.title
     respond_to do |format|
       if @note.save
         format.json { render json: @note, status: :created }
@@ -32,10 +33,13 @@ class Api::V1::NotesController < ApplicationController
   end
   def update
     if is_authorized
-      @note.title = @note.title.nil? ? "" : @note.title
-      @note.body = @note.body.nil? ? "" : @note.body
+      @note.body = note_params[:body].nil? ? "" : note_params[:body]
+      # title defaults to first 30 chars
+      @note.title = note_params['title'].length==0 ? note_params[:body][0..29] : note_params['title']
+      p @note.title
+      p note_params['title']
       respond_to do |format|
-        if @note.update(note_params)
+        if @note.save
           format.json { render json: @note, status: :ok }
         else
           format.json { render json: @note.errors, status: :unprocessable_entity }

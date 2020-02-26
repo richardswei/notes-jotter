@@ -38,15 +38,9 @@ class NoteList extends React.Component {
   //   this.setState({ showModal: false });
   // }
 
-  postNote() {
-    const csrfToken = document.querySelector('[name=csrf-token]').content
-    axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken
-    axios.post("/api/v1/notes", {
-        note: {
-          title: event.target.title.value,
-          body: event.target.body.value,
-        },
-      })
+  postNote(noteObj,token) {
+    axios.defaults.headers.common['X-CSRF-TOKEN'] = token
+    axios.post("/api/v1/notes", noteObj)
       .then(response => {
         this.setState({notes: [response.data, ...this.state.notes] });
       })
@@ -57,15 +51,9 @@ class NoteList extends React.Component {
       .catch(error => console.log(error));
   }
 
-  putNote(idNum) {
-    const csrfToken = document.querySelector('[name=csrf-token]').content
-    axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken
-    axios.put(`/api/v1/notes/${idNum}`, {
-        note: {
-          title: event.target.title.value,
-          body: event.target.body.value,
-        },
-      })
+  putNote(idNum,noteObj,token) {
+    axios.defaults.headers.common['X-CSRF-TOKEN'] = token
+    axios.put(`/api/v1/notes/${idNum}`, noteObj)
       .then(response => {
         this.getNotes();
       })
@@ -85,10 +73,17 @@ class NoteList extends React.Component {
 
   handleNoteSubmit(e, noteId) {
     e.preventDefault();
+    const csrfToken = document.querySelector('[name=csrf-token]').content
+    const noteObj = {
+      note: {
+        title: event.target.title.value,
+        body: event.target.body.value,
+      }
+    } 
     if (noteId) {
-      this.putNote(noteId)
+      this.putNote(noteId,noteObj,csrfToken)
     } else {
-      this.postNote()
+      this.postNote(noteObj,csrfToken)
     }
   }
 
@@ -151,7 +146,6 @@ class NoteList extends React.Component {
               <Note 
                 key={note.id} 
                 note={note}
-                id={note.id}
                 handleDelete={this.handleDelete}
                 handleUpdate={this.handleUpdate}
               />
@@ -198,7 +192,6 @@ function Modal(props) {
               </div>
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
             <button type="submit" className="btn btn-primary">Save</button>
           </div>
         </form>
