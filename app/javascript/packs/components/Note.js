@@ -6,14 +6,17 @@ class Note extends React.Component {
     super(props)
   }
   render() {
-    const { note } = this.props
+    const note = this.props.note
     return (
       <tr>
         <td>{note.title}</td>
         <td>{note.body}</td>
         <td className="text-right">
-          <button className="btn-sm btn btn-outline-danger">&#65293; Delete</button>
-          <button className="btn-sm btn btn-outline-info">&#9998; Update</button>
+          <button 
+            onClick = {(e)=>this.props.handleDelete(note.id, e)}
+            className="btn-sm btn btn-outline-danger">&#65293; Delete</button>
+          <button 
+            className="btn-sm btn btn-outline-info">&#9998; Update</button>
         </td>
       </tr>
     )
@@ -21,7 +24,3 @@ class Note extends React.Component {
 }
 
 export default Note
-
-Note.propTypes = {
-  note: PropTypes.object.isRequired,
-}

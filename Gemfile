@@ -48,9 +48,13 @@ group :test do
   gem 'selenium-webdriver'
   # Easy installation and use of web drivers to run system tests with browsers
   gem 'webdrivers'
+  # rspec for test suite
   gem 'rspec-rails', '~> 3.9'
+  # faker for generating fake data
   gem 'faker'
+  # factory bot for object construction during tests
   gem 'factory_bot_rails'
+  # database_cleaner clean the test databases
   gem 'database_cleaner'
 end
 
