@@ -36,7 +36,7 @@ class Api::V1::NotesController < ApplicationController
       @note.body = @note.body.nil? ? "" : @note.body
       respond_to do |format|
         if @note.update(note_params)
-          format.json { render :show, status: :ok, location: api_v1_note_path(@note) }
+          format.json { render json: @note, status: :ok }
         else
           format.json { render json: @note.errors, status: :unprocessable_entity }
         end

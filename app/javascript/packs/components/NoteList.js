@@ -8,10 +8,18 @@ class NoteList extends React.Component {
     super(props);
     this.state = {
       notes: [],
+      modalDefaultTitle: "",
+      modalDefaultBody: "",
+      modalIdToUpdate: null,
     };
     this.getNotes = this.getNotes.bind(this);
     this.handleNoteSubmit = this.handleNoteSubmit.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
+    this.handleUpdate = this.handleUpdate.bind(this);
+    this.handleNewNote = this.handleNewNote.bind(this);
+    this.postNote = this.postNote.bind(this);
+    this.putNote = this.putNote.bind(this);
+    this.clearModalState = this.clearModalState.bind(this);
   }
   
   componentDidMount() {
@@ -26,15 +34,13 @@ class NoteList extends React.Component {
       .catch(error => console.log(error))
   }
 
-  close(){
-    this.setState({ showModal: false });
-  }
+  // close(){
+  //   this.setState({ showModal: false });
+  // }
 
-  handleNoteSubmit(e) {
-    e.preventDefault();
+  postNote() {
     const csrfToken = document.querySelector('[name=csrf-token]').content
     axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken
-    console.log(csrfToken)
     axios.post("/api/v1/notes", {
         note: {
           title: event.target.title.value,
@@ -42,27 +48,75 @@ class NoteList extends React.Component {
         },
       })
       .then(response => {
-        console.log(this.state)
         this.setState({notes: [response.data, ...this.state.notes] });
+      })
+      .then(() => {
+        this.clearModalState()
+        $("#noteModal").modal("hide");
+      })
+      .catch(error => console.log(error));
+  }
+
+  putNote(idNum) {
+    const csrfToken = document.querySelector('[name=csrf-token]').content
+    axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken
+    axios.put(`/api/v1/notes/${idNum}`, {
+        note: {
+          title: event.target.title.value,
+          body: event.target.body.value,
+        },
+      })
+      .then(response => {
+        this.getNotes();
       })
       .then(() => {
         $("#noteModal").modal("hide");
       })
       .catch(error => console.log(error));
+  }
 
+  clearModalState() {
+    this.setState({
+      modalDefaultTitle: "",
+      modalDefaultBody: "",
+      modalIdToUpdate: null,
+    })
+  }
+
+  handleNoteSubmit(e, noteId) {
+    e.preventDefault();
+    if (noteId) {
+      this.putNote(noteId)
+    } else {
+      this.postNote()
+    }
   }
 
   handleDelete(id_to_del, e) {
     e.preventDefault();
     const csrfToken = document.querySelector('[name=csrf-token]').content
     axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken
-    console.log(csrfToken)
     axios.delete(`/api/v1/notes/${id_to_del}`,)
       .then(response => {
         this.getNotes();
       })
       .catch(error => console.log(error));
+  }
 
+  handleUpdate(id, title, body) {
+    $("#noteModal").find('form').trigger('reset');
+    this.setState({ 
+      modalIdToUpdate: id,
+      modalDefaultTitle: title,
+      modalDefaultBody: body,
+    });
+    $('#noteModal').modal('show')
+  }
+  handleNewNote() {
+    $("#noteModal").find('form').trigger('reset');
+
+    this.clearModalState();
+    $('#noteModal').modal('show')
   }
 
   render() {
@@ -70,6 +124,9 @@ class NoteList extends React.Component {
       <React.Fragment>
         <Modal
           handleNoteSubmit={this.handleNoteSubmit}
+          noteId = {this.state.modalIdToUpdate}
+          title = {this.state.modalDefaultTitle}
+          body = {this.state.modalDefaultBody}
         />
         <div className="table-responsive table-hover">
           <table className="table">
@@ -80,9 +137,10 @@ class NoteList extends React.Component {
                 <th scope="col" className="note-actions text-right">
                   <button 
                     type="button" 
-                    data-toggle="modal"
+                    // data-toggle="modal"
+                    onClick={this.handleNewNote}
                     className="btn-sm btn btn-outline-success"
-                    data-target="#noteModal"
+                    // data-target="#noteModal"
                     >&#65291; New Note
                   </button>
                 </th>
@@ -95,6 +153,7 @@ class NoteList extends React.Component {
                 note={note}
                 id={note.id}
                 handleDelete={this.handleDelete}
+                handleUpdate={this.handleUpdate}
               />
             ))}
             </tbody>
@@ -107,6 +166,8 @@ class NoteList extends React.Component {
 export default NoteList
 
 function Modal(props) {
+  console.log(props.noteId)
+
   return (<div className="modal fade" id="noteModal" tabIndex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div className="modal-dialog modal-dialog-centered" role="document">
       <div className="modal-content">
@@ -116,15 +177,24 @@ function Modal(props) {
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <form onSubmit={props.handleNoteSubmit}>
+        <form onSubmit={(e)=>props.handleNoteSubmit(e, props.noteId)}>
           <div className="modal-body">
               <div className="form-group">
                 <label htmlFor="titleInput">Title</label>
-                <input type="text" className="form-control" name="title" id="titleInput"/>
+                <input type="text" 
+                  defaultValue={props.title}
+                  className="form-control" 
+                  name="title" 
+                  id="titleInput"/>
               </div>
               <div className="form-group">
                 <label htmlFor="bodyInput">Body</label>
-                <textarea className="form-control" name="body" id="bodyInput" rows="2"></textarea>
+                <textarea 
+                  defaultValue={props.body}
+                  className="form-control" 
+                  name="body" 
+                  id="bodyInput" 
+                  rows="2"></textarea>
               </div>
           </div>
           <div className="modal-footer">
