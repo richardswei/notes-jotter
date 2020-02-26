@@ -117,10 +117,11 @@ describe "post a note without both title and body ", :type => :request do
   end
 end
 
-describe "post a note with 1000 characters in the body", :type => :request do
+describe "post a note with 1000 characters in the body and no title", :type => :request do
   before do
     testing_user = FactoryBot.create(:user)
     sign_in(testing_user)
+    @title = "0"*30
     @created_note = Note.new(title: "", body: "0"*1000)
     # sign in as the first generated user
     get root_path
@@ -128,7 +129,7 @@ describe "post a note with 1000 characters in the body", :type => :request do
     post "/api/v1/notes", params: {note: @created_note.as_json}
   end
   it 'returns the note with matching title' do
-    expect(JSON.parse(response.body)['title']).to eq(@created_note.as_json['title'])
+    expect(JSON.parse(response.body)['title']).to eq(@title)
   end
   it 'returns the note with matching body' do
     expect(JSON.parse(response.body)['body']).to eq(@created_note.as_json['body'])
@@ -175,25 +176,90 @@ describe "post a note with 31 characters in the title", :type => :request do
 end
 
 # PUTS
-describe "post a note with 31 characters in the title", :type => :request do
+describe "put a unowned note", :type => :request do
   before do
     testing_user = FactoryBot.create(:user)
-    note1 = FactoryBot.build(:note)
-    note1.user = user
-    note1.save
-    sign_in(testing_user)
-    @created_note = Note.new(title: "0", body: "")
+    @note = FactoryBot.build(:note)
+    @note.user = testing_user
+    @note.save
 
-    # sign in as the first generated user
+    # sign in as another user and attempt to update unowned id
+    testing_user_2 = FactoryBot.create(:user)
+    sign_in(testing_user_2)
+    @created_note = Note.new(title: "0", body: "0")
     get root_path
-    @count = Note.count
-    put "/api/v1/notes", params: {note: @created_note.as_json}
+    put "/api/v1/notes/#{@note.id}", params: {note: @created_note.as_json}
   end
-  it 'does not go into the note count' do
-    expect(@count).to eq(Note.count)
+  it 'does not change the note' do
+    persisted_note = Note.find(@note.id)
+    expect(persisted_note.as_json['body']).not_to eq(@created_note.as_json['body'])
   end
-  it 'returns status 422' do
-    expect(response).to have_http_status(:unprocessable_entity)
+  it 'returns status unauthorized' do
+    expect(response).to have_http_status(:unauthorized)
   end
 end
 
+describe "put an owned note", :type => :request do
+  before do
+    testing_user = FactoryBot.create(:user)
+    @note = FactoryBot.build(:note)
+    @note.user = testing_user
+    @note.save
+
+    sign_in(testing_user)
+    @created_note = Note.new(title: "0", body: "0")
+    get root_path
+    put "/api/v1/notes/#{@note.id}", params: {note: @created_note.as_json}
+  end
+  it 'does not change the note' do
+    persisted_note = Note.find(@note.id)
+    expect(persisted_note.as_json['body']).to eq(@created_note.as_json['body'])
+  end
+  it 'returns status ok' do
+    expect(response).to have_http_status(:ok)
+  end
+end
+
+# delete
+describe "delete an unowned note", :type => :request do
+  before do
+    testing_user = FactoryBot.create(:user)
+    @note = FactoryBot.build(:note)
+    @note.user = testing_user
+    @note.save
+    @note_count = Note.count
+    # sign in as another user and attempt to delete unowned id
+    testing_user_2 = FactoryBot.create(:user)
+    sign_in(testing_user_2)
+    get root_path
+    delete "/api/v1/notes/#{@note.id}"
+  end
+  it 'does not change the note count' do
+    persisted_note_count = Note.count
+    expect(persisted_note_count).to eq(@note_count)
+  end
+  it 'returns status unauthorized' do
+    expect(response).to have_http_status(:unauthorized)
+  end
+end
+
+describe "delete an owned note", :type => :request do
+  before do
+    testing_user = FactoryBot.create(:user)
+    @note = FactoryBot.build(:note)
+    @note.user = testing_user
+    @note.save
+    @note_count = Note.count
+    # sign in as another user and attempt to delete unowned id
+    sign_in(testing_user)
+    get root_path
+    delete "/api/v1/notes/#{@note.id}"
+  end
+  it 'does change the note count' do
+    persisted_note_count = Note.count
+    expect(persisted_note_count).to eq(@note_count-1)
+  end
+  it 'returns status no content' do
+    expect(response).to have_http_status(:no_content)
+  end
+end

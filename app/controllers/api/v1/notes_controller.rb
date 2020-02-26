@@ -36,8 +36,6 @@ class Api::V1::NotesController < ApplicationController
       @note.body = note_params[:body].nil? ? "" : note_params[:body]
       # title defaults to first 30 chars
       @note.title = note_params['title'].length==0 ? note_params[:body][0..29] : note_params['title']
-      p @note.title
-      p note_params['title']
       respond_to do |format|
         if @note.save
           format.json { render json: @note, status: :ok }

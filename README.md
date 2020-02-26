@@ -1,5 +1,11 @@
 # README
 
+Run test suite:
+from project root
+```rspec ./spec/notes_spec.rb```
+
+
+
 This README would normally document whatever steps are necessary to get the
 application up and running.
 
