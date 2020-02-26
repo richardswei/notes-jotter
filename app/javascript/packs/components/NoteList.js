@@ -11,6 +11,8 @@ class NoteList extends React.Component {
       modalDefaultTitle: "",
       modalDefaultBody: "",
       modalIdToUpdate: null,
+      errorMessages: null,
+      modalError: false
     };
     this.getNotes = this.getNotes.bind(this);
     this.handleNoteSubmit = this.handleNoteSubmit.bind(this);
@@ -20,6 +22,7 @@ class NoteList extends React.Component {
     this.postNote = this.postNote.bind(this);
     this.putNote = this.putNote.bind(this);
     this.clearModalState = this.clearModalState.bind(this);
+    this.clearErrorMessages = this.clearErrorMessages.bind(this);
   }
   
   componentDidMount() {
@@ -34,23 +37,25 @@ class NoteList extends React.Component {
       .catch(error => console.log(error))
   }
 
-  // close(){
-  //   this.setState({ showModal: false });
-  // }
-
+  // POST
   postNote(noteObj,token) {
     axios.defaults.headers.common['X-CSRF-TOKEN'] = token
     axios.post("/api/v1/notes", noteObj)
       .then(response => {
         this.setState({notes: [response.data, ...this.state.notes] });
       })
+      // clear default values and hide
       .then(() => {
         this.clearModalState()
         $("#noteModal").modal("hide");
       })
-      .catch(error => console.log(error));
+      .catch(error => {
+        console.log(error.message)
+        this.setState({errorMessages: error.response.data.messages})
+      });
   }
 
+  // PUT
   putNote(idNum,noteObj,token) {
     axios.defaults.headers.common['X-CSRF-TOKEN'] = token
     axios.put(`/api/v1/notes/${idNum}`, noteObj)
@@ -60,7 +65,10 @@ class NoteList extends React.Component {
       .then(() => {
         $("#noteModal").modal("hide");
       })
-      .catch(error => console.log(error));
+      .catch(error => {
+        console.log(error.message)
+        this.setState({errorMessages: error.response.data.messages})
+      });
   }
 
   clearModalState() {
@@ -68,6 +76,12 @@ class NoteList extends React.Component {
       modalDefaultTitle: "",
       modalDefaultBody: "",
       modalIdToUpdate: null,
+    })
+  }
+  
+  clearErrorMessages() {
+    this.setState({
+      errorMessages: null
     })
   }
 
@@ -100,17 +114,26 @@ class NoteList extends React.Component {
 
   handleUpdate(id, title, body) {
     $("#noteModal").find('form').trigger('reset');
-    this.setState({ 
+    this.clearErrorMessages();
+    this.setState({
       modalIdToUpdate: id,
       modalDefaultTitle: title,
       modalDefaultBody: body,
     });
+    // force autofocus on tab when showing modal
+    $('#noteModal').on('shown.bs.modal', function () {
+      $('#titleInput').focus()
+    })
     $('#noteModal').modal('show')
   }
   handleNewNote() {
     $("#noteModal").find('form').trigger('reset');
-
     this.clearModalState();
+    this.clearErrorMessages();
+    // force autofocus on tab when showing modal
+    $('#noteModal').on('shown.bs.modal', function () {
+      $('#titleInput').focus()
+    })
     $('#noteModal').modal('show')
   }
 
@@ -118,6 +141,7 @@ class NoteList extends React.Component {
     return (
       <React.Fragment>
         <Modal
+          errorMessages={this.state.errorMessages}
           handleNoteSubmit={this.handleNoteSubmit}
           noteId = {this.state.modalIdToUpdate}
           title = {this.state.modalDefaultTitle}
@@ -160,8 +184,6 @@ class NoteList extends React.Component {
 export default NoteList
 
 function Modal(props) {
-  console.log(props.noteId)
-
   return (<div className="modal fade" id="noteModal" tabIndex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div className="modal-dialog modal-dialog-centered" role="document">
       <div className="modal-content">
@@ -173,6 +195,14 @@ function Modal(props) {
         </div>
         <form onSubmit={(e)=>props.handleNoteSubmit(e, props.noteId)}>
           <div className="modal-body">
+          { props.errorMessages &&
+            <div>
+              {props.errorMessages.map((msg)=>{
+                return (<div class="alert alert-danger" role="alert">
+                  {msg}
+                </div>)
+              })}
+            </div> }
               <div className="form-group">
                 <label htmlFor="titleInput">Title</label>
                 <input type="text" 

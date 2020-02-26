@@ -27,7 +27,7 @@ class Api::V1::NotesController < ApplicationController
       if @note.save
         format.json { render json: @note, status: :created }
       else
-        format.json { render json: @note.errors, status: :unprocessable_entity }
+        format.json { render json: @note.errors, status: :unprocessable_entity }      
       end
     end
   end
@@ -40,7 +40,7 @@ class Api::V1::NotesController < ApplicationController
         if @note.save
           format.json { render json: @note, status: :ok }
         else
-          format.json { render json: @note.errors, status: :unprocessable_entity }
+          format.json { render json: @note.errors, status: :unprocessable_entity }      
         end
       end      
     else

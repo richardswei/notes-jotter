@@ -8,9 +8,8 @@ class Note extends React.Component {
 
   render() {
     const note = this.props.note
-    console.log(timeSince(note.updated_at))
     return (
-      <tr data-toggle="tooltip" data-placement="auto" title={timeSince(note.updated_at) + " ago"}>
+      <tr data-toggle="tooltip" data-placement="auto" title={`Updated ${timeSince(note.updated_at)} ago`}>
         <td>{note.title}</td>
         <td className="white-space-pre">{note.body}</td>
         <td className="text-right">
