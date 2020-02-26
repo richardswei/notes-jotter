@@ -61,6 +61,8 @@ end
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
+# faker for generating fake data on prod
+gem 'faker'
 # Use devise for all authentication
 =begin
   NOTE: This is the easy way out. 
