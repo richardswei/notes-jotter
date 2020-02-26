@@ -44,7 +44,7 @@ body {
   margin: auto
 }
 
-.note-actions {
+.no-wrap {
   white-space: nowrap;
 }
 

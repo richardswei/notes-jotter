@@ -1,5 +1,5 @@
 class Note < ApplicationRecord
-  default_scope { order(created_at: :desc) }
+  default_scope { order(updated_at: :desc) }
   belongs_to :user
   validate :has_title_or_body
   validate :body_length

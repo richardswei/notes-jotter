@@ -153,7 +153,7 @@ class NoteList extends React.Component {
               <tr>
                 <th scope="col">Title</th>
                 <th scope="col">Body</th>
-                <th scope="col" className="note-actions text-right">
+                <th scope="col" className="no-wrap text-right">
                   <button 
                     type="button" 
                     // data-toggle="modal"
