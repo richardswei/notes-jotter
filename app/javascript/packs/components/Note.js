@@ -9,12 +9,15 @@ class Note extends React.Component {
   render() {
     const note = this.props.note
     const updated = note.updated_at != note.created_at;
-
+    const updated_time = new Date(Date.parse(note.updated_at))
     return (
-      <tr data-toggle="tooltip" data-placement="auto" title={`Updated on: ${Date.parse(note.updated_at).toString()}`}>
+      <tr 
+        data-toggle="tooltip" 
+        data-placement="auto" 
+        title={ `${updated ? 'Updated' : 'Created'} on: ${updated_time.toLocaleDateString()} @ ${updated_time.toLocaleTimeString()}`}>
         <td>
           <div>{note.title}</div>
-          <div class="text-muted font-italic no-wrap">{updated ? `Updated ${timeSince(note.updated_at)} ago` :`Created ${timeSince(note.created_at)} ago`}</div>
+          <div className="text-muted font-italic no-wrap">{updated ? `Updated ${timeSince(note.updated_at)} ago` :`Created ${timeSince(note.created_at)} ago`}</div>
         </td>
         <td className="white-space-pre">{note.body}</td>
         <td className="text-right">
